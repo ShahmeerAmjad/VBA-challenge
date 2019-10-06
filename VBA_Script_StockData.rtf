@@ -1,0 +1,152 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+Sub WorksheetLoop()\
+Dim Current As Worksheet\
+For Each Current In Worksheets\
+' Begin code\
+' Initialize variables for ticker name,stock volume\
+Dim tickerName As String\
+Dim stockVolume As Double\
+stockVolume = 0\
+' Initialize variables for opening price at begining of year, and closing price at end of year\
+Dim StartingPrice As Double\
+Dim closingPrice As Double\
+StartingPrice = Cells(2, 3).Value\
+' MsgBox (StartingPrice)\
+'Add headers for ticker, yearly change, percent change and total stock volume\
+Current.Cells(1, 9).Value = "Ticker"\
+Current.Cells(1, 10).Value = "Yearly Change"\
+Current.Cells(1, 11).Value = "Percent Change"\
+Current.Cells(1, 12).Value = "Total Stock Volume"\
+' Find the last row in the dataset in a single spreadsheet\
+lastRow = Current.Cells(Rows.Count, 1).End(xlUp).Row\
+' Count of rowCount to add values in the summary table for each unique ticker\
+Dim rowCount As Long\
+rowCount = 2\
+'Loop through the rows for each individual ticker name and aggregate tickerVolume\
+For i = 2 To lastRow\
+If Current.Cells(i + 1, 1).Value <> Current.Cells(i, 1).Value Then\
+tickerName = Current.Cells(i, 1).Value\
+closingPrice = Current.Cells(i, 6).Value\
+' Aggregate tickerVolume grouped by tickerName\
+stockVolume = tickerVolume + Current.Cells(i, 7).Value\
+' Now to add values to the summary table on the right side of the Spreadsheet\
+' Add tickerName\
+Current.Cells(rowCount, 9).Value = tickerName\
+'Add tickerVolume for each ticker type\
+Current.Cells(rowCount, 12).Value = stockVolume\
+'Add yearlyChange for each tickertype\
+Current.Cells(rowCount, 10).Value = closingPrice - StartingPrice\
+If Current.Cells(rowCount, 10).Value > 0 Then\
+Current.Cells(rowCount, 10).Interior.ColorIndex = 4\
+Else\
+Current.Cells(rowCount, 10).Interior.ColorIndex = 3\
+End If\
+'Add Percent Change to table\
+If Current.Cells(rowCount, 10).Value = 0 And StartingPrice = 0 And closingPrice = 0 Then\
+Current.Cells(rowCount, 11).Value = 0\
+Else\
+Current.Cells(rowCount, 11).Value = Current.Cells(rowCount, 10).Value / StartingPrice\
+Current.Cells(rowCount, 11).NumberFormat = "0.00%"\
+End If\
+'Add one to rowCount to move on to next ticker\
+rowCount = rowCount + 1\
+' Reset stockVolume to 0 for next ticker type\
+stockVolume = 0\
+'Set Starting price for next ticker type\
+StartingPrice = Current.Cells(i + 1, 3).Value\
+'Reset ClosingPrice for next ticker type\
+Else\
+'Aggregate stock Volume\
+stockVolume = stockVolume + Current.Cells(i, 7).Value\
+End If\
+Next i\
+'This line displays the worksheet name in a message box\
+MsgBox Current.Name\
+Next\
+End Sub\
+\
+\
+\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+Sub GreatestValues()\
+\
+Dim Current As Worksheet\
+For Each Current In Worksheets\
+\
+' Insert Headers in Cells\
+Dim GreatestInc As Double\
+Dim GreatestDec As Double\
+Dim GreatestVol As Long\
+\
+\
+Current.Cells(1, 16).Value = "Ticker"\
+Current.Cells(1, 17).Value = "Value"\
+Current.Cells(1, 18).Value = "Index"\
+Current.Cells(2, 15).Value = "Greatest % Increase"\
+Current.Cells(3, 15).Value = "Greatest % Decrease"\
+Current.Cells(4, 15).Value = "Greatest Total Volume"\
+\
+' For Each Current In Worksheet\
+lastRow = Current.Cells(Rows.Count, 11).End(xlUp).Row\
+\
+MsgBox (lastRow)\
+\
+'Start loop to iterate thorough values\
+\
+'GREATEST % INCREASE\
+GreatestInc = Current.Application.WorksheetFunction.Max(Range("K:K"))\
+'MsgBox (GreatestInc)\
+Current.Cells(2, 17).Value = GreatestInc\
+\
+'Find Index of GreatestInc\
+\
+\
+Current.Range("R2").Value = Current.Application.WorksheetFunction.Match(Range("Q2").Value, Range("K:K"), 0)\
+\
+'Match Ticker Number\
+Current.Range("P2").Value = Current.Application.WorksheetFunction.Index(Range("I:L"), Range("R2"), 1)\
+\
+\
+'GREATEST % DECREASE\
+GreatestDec = Current.Application.WorksheetFunction.Min(Range("K:K"))\
+\
+'MsgBox (GreatestDec)\
+Current.Cells(3, 17).Value = GreatestDec\
+' Find Index of GreatestInc\
+Current.Range("R3").Value = Current.Application.WorksheetFunction.Match(Range("Q3").Value, Range("K:K"), 0)\
+Current.Range("P3").Value = Current.Application.WorksheetFunction.Index(Range("I:L"), Range("R3"), 1)\
+\
+\
+'Greatest Volume\
+GreatestVol = Current.Application.WorksheetFunction.Max(Range("L:L"))\
+Current.Range("Q4").Value = GreatestVol\
+'MsgBox (GreatestVol)\
+\
+'Find Index of GreatestVolume sold of stock\
+\
+Current.Range("R4").Value = Current.Application.WorksheetFunction.Match(Range("Q4").Value, Range("L:L"), 0)\
+'Find corresponding ticker name\
+Current.Range("P4").Value = Current.Application.WorksheetFunction.Index(Range("I:L"), Range("R4"), 1)\
+\
+MsgBox (Current.Name)\
+'Reset Values\
+GreatestInc = 0\
+GreatestDec = 0\
+GreatestVol = 0\
+\
+\
+Next Current\
+\
+End Sub\
+\
+\
+\
+}
